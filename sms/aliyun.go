@@ -10,10 +10,12 @@ import (
 type AliyunConfig struct {
 	AccessKeyID     string
 	AccessKeySecret string
+	SignName        string // 默认短信签名，Send 时 SignName 为空则使用此值
 }
 
 type aliyunProvider struct {
-	client *dysmsapi.Client
+	client   *dysmsapi.Client
+	signName string
 }
 
 // NewAliyun 创建阿里云短信服务。
@@ -22,12 +24,15 @@ func NewAliyun(cfg AliyunConfig) (Provider, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &aliyunProvider{client: client}, nil
+	return &aliyunProvider{client: client, signName: cfg.SignName}, nil
 }
 
 func (a *aliyunProvider) ProviderName() string { return "aliyun" }
 
 func (a *aliyunProvider) Send(req *SendRequest) (*SendResponse, error) {
+	if req.SignName == "" {
+		req.SignName = a.signName
+	}
 	if err := validate(req); err != nil {
 		return nil, err
 	}

@@ -26,7 +26,7 @@ func TestSendCode(t *testing.T) {
 			if req.TemplateID != "TPL_001" {
 				t.Errorf("unexpected template id: %s", req.TemplateID)
 			}
-			if req.SignName != "测试" {
+			if req.SignName != "" {
 				t.Errorf("unexpected sign name: %s", req.SignName)
 			}
 			if len(req.TemplateParams) != 1 || req.TemplateParams["code"] != "123456" {
@@ -36,7 +36,7 @@ func TestSendCode(t *testing.T) {
 		},
 	}
 
-	resp, err := SendCode(mock, "13800138000", "TPL_001", "测试", "code", "123456")
+	resp, err := SendCode(mock, "13800138000", "TPL_001", map[string]string{"code": "123456"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

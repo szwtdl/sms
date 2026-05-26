@@ -32,12 +32,12 @@ type SendResponse struct {
 }
 
 // SendCode 发送短信验证码的便捷方法。
-// paramKey 为模板中验证码占位符的名称，如 "code"；code 为生成的验证码。
-func SendCode(p Provider, phone, templateID, signName, paramKey, code string) (*SendResponse, error) {
+// params 为模板参数，如 map[string]string{"code": "123456"}。
+// SignName 使用 Provider 配置中的默认签名，如需覆盖请直接调用 Send。
+func SendCode(p Provider, phone, templateID string, params map[string]string) (*SendResponse, error) {
 	return p.Send(&SendRequest{
 		PhoneNumbers:   phone,
 		TemplateID:     templateID,
-		TemplateParams: map[string]string{paramKey: code},
-		SignName:       signName,
+		TemplateParams: params,
 	})
 }

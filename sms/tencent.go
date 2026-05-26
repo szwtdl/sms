@@ -14,11 +14,13 @@ type TencentConfig struct {
 	SecretID  string
 	SecretKey string
 	AppID     string // 短信应用 ID，在控制台 应用管理 中查看
+	SignName  string // 默认短信签名，Send 时 SignName 为空则使用此值
 }
 
 type tencentProvider struct {
-	client *smsapi.Client
-	appID  string
+	client   *smsapi.Client
+	appID    string
+	signName string
 }
 
 // NewTencent 创建腾讯云短信服务。
@@ -30,12 +32,15 @@ func NewTencent(cfg TencentConfig) (Provider, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &tencentProvider{client: client, appID: cfg.AppID}, nil
+	return &tencentProvider{client: client, appID: cfg.AppID, signName: cfg.SignName}, nil
 }
 
 func (t *tencentProvider) ProviderName() string { return "tencent" }
 
 func (t *tencentProvider) Send(req *SendRequest) (*SendResponse, error) {
+	if req.SignName == "" {
+		req.SignName = t.signName
+	}
 	if err := validate(req); err != nil {
 		return nil, err
 	}
