@@ -25,8 +25,9 @@ func main() {
     ali, _ := sms.NewAliyun(sms.AliyunConfig{
         AccessKeyID:     "your-access-key-id",
         AccessKeySecret: "your-access-key-secret",
+        SignName:        "签名",
     })
-    resp, err := sms.SendCode(ali, "13800138000", "SMS_123456", "签名", "code", "654321")
+    resp, err := sms.SendCode(ali, "13800138000", "SMS_123456", map[string]string{"code": "654321"})
     if err != nil {
         panic(err)
     }
@@ -37,8 +38,9 @@ func main() {
         SecretID:  "your-secret-id",
         SecretKey: "your-secret-key",
         AppID:     "1400006666",
+        SignName:  "签名",
     })
-    resp, err = sms.SendCode(tx, "13800138000", "1234567", "签名", "code", "654321")
+    resp, err = sms.SendCode(tx, "13800138000", "1234567", map[string]string{"code": "654321"})
     if err != nil {
         panic(err)
     }
@@ -54,7 +56,6 @@ ali, _ := sms.NewAliyun(sms.AliyunConfig{...})
 resp, err := ali.Send(&sms.SendRequest{
     PhoneNumbers: "13800138000",
     TemplateID:   "SMS_123456",
-    SignName:     "签名",
     TemplateParams: map[string]string{
         "code":    "654321",
         "product": "XX平台",
@@ -68,7 +69,6 @@ resp, err := ali.Send(&sms.SendRequest{
 resp, err := ali.Send(&sms.SendRequest{
     PhoneNumbers: "13800138000,13900139000", // 阿里云逗号分隔
     TemplateID:   "SMS_123456",
-    SignName:     "签名",
     TemplateParams: map[string]string{"code": "654321"},
 })
 ```
@@ -91,7 +91,7 @@ type Provider interface {
 | PhoneNumbers | string | 手机号，多个用逗号分隔 |
 | TemplateID | string | 模板 ID（云平台控制台配置） |
 | TemplateParams | map[string]string | 模板参数，key 为占位符名，value 为实际值 |
-| SignName | string | 短信签名（需在云平台报备） |
+| SignName | string | 短信签名，传空则使用 Config 中的默认签名 |
 
 > **关于 TemplateParams：** 阿里云直接序列化为 JSON 对象 `{"code":"654321"}`；腾讯云按 key 字母序排列 value 后传入。单参数（验证码）场景两个平台行为一致；多参数时请确保 key 命名字母序与腾讯云模板占位符顺序一致。
 
@@ -117,6 +117,7 @@ type Provider interface {
 |------|------|
 | AccessKeyID | 阿里云 AccessKey ID |
 | AccessKeySecret | 阿里云 AccessKey Secret |
+| SignName | 默认短信签名（需在云平台报备） |
 
 ### TencentConfig
 
@@ -125,11 +126,12 @@ type Provider interface {
 | SecretID | 腾讯云 SecretId |
 | SecretKey | 腾讯云 SecretKey |
 | AppID | 短信应用 ID（控制台 > 应用管理） |
+| SignName | 默认短信签名（需在云平台报备） |
 
 ### 便捷函数
 
 ```go
-func SendCode(p Provider, phone, templateID, signName, paramKey, code string) (*SendResponse, error)
+func SendCode(p Provider, phone, templateID string, params map[string]string) (*SendResponse, error)
 ```
 
 | 参数 | 说明 |
@@ -137,9 +139,7 @@ func SendCode(p Provider, phone, templateID, signName, paramKey, code string) (*
 | p | Provider 实例 |
 | phone | 手机号 |
 | templateID | 模板 ID |
-| signName | 短信签名 |
-| paramKey | 模板中验证码占位符名称，如 `"code"` |
-| code | 验证码 |
+| params | 模板参数，如 `map[string]string{"code": "654321"}` |
 
 ### 预定义错误
 
