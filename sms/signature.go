@@ -39,3 +39,36 @@ type ApplySignatureResponse struct {
 	Message   string
 	SignName  string // 签名名称
 }
+
+// ModifySignatureRequest 修改短信签名请求。
+// 阿里云通过 SignName 定位要修改的签名；腾讯云需要传 SignID。
+type ModifySignatureRequest struct {
+	SignID      uint64 // 签名 ID（腾讯云必填）
+	SignName    string // 签名名称
+	Remark      string // 修改说明
+	SignSource  int    // 签名来源: 0=企事业单位, 1=工信部备案域名
+	ProofBase64 string // 资质证明图片 base64
+	ProofSuffix string // 文件后缀: jpg/png/pdf
+}
+
+// ModifySignatureResponse 修改短信签名响应。
+type ModifySignatureResponse struct {
+	RequestID string
+	Code      string // "OK" 表示成功
+	Message   string
+	SignName  string // 签名名称
+}
+
+// DeleteSignatureRequest 删除短信签名请求。
+// 阿里云通过 SignName 定位要删除的签名；腾讯云需要传 SignID。
+type DeleteSignatureRequest struct {
+	SignID   uint64 // 签名 ID（腾讯云必填）
+	SignName string // 签名名称（阿里云必填）
+}
+
+// DeleteSignatureResponse 删除短信签名响应。
+type DeleteSignatureResponse struct {
+	RequestID string
+	Code      string // "OK" 表示成功
+	Message   string
+}

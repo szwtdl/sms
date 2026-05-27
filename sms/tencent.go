@@ -128,6 +128,42 @@ func (t *tencentProvider) TemplateList(req *TemplateListRequest) (*TemplateListR
 	}, nil
 }
 
+func (t *tencentProvider) DeleteTemplate(req *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
+	apiReq := smsapi.NewDeleteSmsTemplateRequest()
+	apiReq.TemplateId = strToUint64(req.TemplateID)
+
+	apiResp, err := t.client.DeleteSmsTemplate(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	return &DeleteTemplateResponse{
+		RequestID: strVal(apiResp.Response.RequestId),
+		Code:      "OK",
+		Message:   "success",
+	}, nil
+}
+
+func (t *tencentProvider) ModifyTemplate(req *ModifyTemplateRequest) (*ModifyTemplateResponse, error) {
+	apiReq := smsapi.NewModifySmsTemplateRequest()
+	apiReq.TemplateId = strToUint64(req.TemplateID)
+	apiReq.TemplateName = &req.TemplateName
+	apiReq.TemplateContent = &req.TemplateContent
+	apiReq.SmsType = common.Uint64Ptr(uint64(req.TemplateType + 1))
+	apiReq.International = common.Uint64Ptr(0)
+	apiReq.Remark = &req.Remark
+
+	apiResp, err := t.client.ModifySmsTemplate(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	return &ModifyTemplateResponse{
+		RequestID:  strVal(apiResp.Response.RequestId),
+		Code:       "OK",
+		Message:    "success",
+		TemplateID: uint64ToStr(apiResp.Response.ModifyTemplateStatus.TemplateId),
+	}, nil
+}
+
 func (t *tencentProvider) ApplyTemplate(req *ApplyTemplateRequest) (*ApplyTemplateResponse, error) {
 	apiReq := smsapi.NewAddSmsTemplateRequest()
 	apiReq.TemplateName = &req.TemplateName
@@ -175,6 +211,45 @@ func (t *tencentProvider) SignatureList(req *SignatureListRequest) (*SignatureLi
 		Message:    "success",
 		TotalCount: len(signs),
 		Signatures: signs,
+	}, nil
+}
+
+func (t *tencentProvider) DeleteSignature(req *DeleteSignatureRequest) (*DeleteSignatureResponse, error) {
+	apiReq := smsapi.NewDeleteSmsSignRequest()
+	apiReq.SignId = &req.SignID
+
+	apiResp, err := t.client.DeleteSmsSign(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	return &DeleteSignatureResponse{
+		RequestID: strVal(apiResp.Response.RequestId),
+		Code:      "OK",
+		Message:   "success",
+	}, nil
+}
+
+func (t *tencentProvider) ModifySignature(req *ModifySignatureRequest) (*ModifySignatureResponse, error) {
+	apiReq := smsapi.NewModifySmsSignRequest()
+	apiReq.SignId = &req.SignID
+	apiReq.SignName = &req.SignName
+	apiReq.SignType = common.Uint64Ptr(uint64(req.SignSource))
+	apiReq.International = common.Uint64Ptr(0)
+	apiReq.SignPurpose = common.Uint64Ptr(0)
+	apiReq.Remark = &req.Remark
+	if req.ProofBase64 != "" {
+		apiReq.ProofImage = &req.ProofBase64
+	}
+
+	apiResp, err := t.client.ModifySmsSign(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	return &ModifySignatureResponse{
+		RequestID: strVal(apiResp.Response.RequestId),
+		Code:      "OK",
+		Message:   "success",
+		SignName:  req.SignName,
 	}, nil
 }
 
@@ -306,6 +381,17 @@ func uint64Val(i *uint64) uint64 {
 		return 0
 	}
 	return *i
+}
+
+func strToUint64(s string) *uint64 {
+	if s == "" {
+		return nil
+	}
+	v, err := strconv.ParseUint(s, 10, 64)
+	if err != nil {
+		return nil
+	}
+	return &v
 }
 
 func uint64ToStr(i *uint64) string {

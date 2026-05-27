@@ -40,3 +40,32 @@ type ApplyTemplateResponse struct {
 	Message    string
 	TemplateID string // 平台分配的模板 ID
 }
+
+// ModifyTemplateRequest 修改短信模板请求。
+type ModifyTemplateRequest struct {
+	TemplateID      string // 要修改的模板 ID
+	TemplateName    string // 新的模板名称
+	TemplateContent string // 新的模板内容
+	TemplateType    int    // 模板类型: 0=验证码, 1=通知, 2=推广
+	Remark          string // 修改说明
+}
+
+// ModifyTemplateResponse 修改短信模板响应。
+type ModifyTemplateResponse struct {
+	RequestID  string
+	Code       string // "OK" 表示成功
+	Message    string
+	TemplateID string // 模板 ID
+}
+
+// DeleteTemplateRequest 删除短信模板请求。
+type DeleteTemplateRequest struct {
+	TemplateID string // 模板 ID
+}
+
+// DeleteTemplateResponse 删除短信模板响应。
+type DeleteTemplateResponse struct {
+	RequestID string
+	Code      string // "OK" 表示成功
+	Message   string
+}

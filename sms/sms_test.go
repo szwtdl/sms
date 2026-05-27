@@ -24,12 +24,28 @@ func (m *mockProvider) ApplyTemplate(req *ApplyTemplateRequest) (*ApplyTemplateR
 	return &ApplyTemplateResponse{Code: "OK", TemplateID: "TPL_NEW"}, nil
 }
 
+func (m *mockProvider) ModifyTemplate(req *ModifyTemplateRequest) (*ModifyTemplateResponse, error) {
+	return &ModifyTemplateResponse{Code: "OK", TemplateID: req.TemplateID}, nil
+}
+
+func (m *mockProvider) DeleteTemplate(req *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
+	return &DeleteTemplateResponse{Code: "OK"}, nil
+}
+
 func (m *mockProvider) SignatureList(req *SignatureListRequest) (*SignatureListResponse, error) {
 	return &SignatureListResponse{Code: "OK", TotalCount: 0}, nil
 }
 
 func (m *mockProvider) ApplySignature(req *ApplySignatureRequest) (*ApplySignatureResponse, error) {
 	return &ApplySignatureResponse{Code: "OK", SignName: req.SignName}, nil
+}
+
+func (m *mockProvider) ModifySignature(req *ModifySignatureRequest) (*ModifySignatureResponse, error) {
+	return &ModifySignatureResponse{Code: "OK", SignName: req.SignName}, nil
+}
+
+func (m *mockProvider) DeleteSignature(req *DeleteSignatureRequest) (*DeleteSignatureResponse, error) {
+	return &DeleteSignatureResponse{Code: "OK"}, nil
 }
 
 func (m *mockProvider) SendStatistics(req *StatisticsRequest) (*StatisticsResponse, error) {
@@ -277,6 +293,67 @@ func TestMockQueryRecords(t *testing.T) {
 		SendDate:    "20240501",
 		Page:        1,
 		PageSize:    10,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" {
+		t.Errorf("expected OK, got %s", resp.Code)
+	}
+}
+
+func TestMockModifyTemplate(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.ModifyTemplate(&ModifyTemplateRequest{
+		TemplateID:      "SMS_001",
+		TemplateName:    "新验证码模板",
+		TemplateContent: "您的验证码为${code}",
+		TemplateType:    0,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" || resp.TemplateID != "SMS_001" {
+		t.Errorf("unexpected response: %+v", resp)
+	}
+}
+
+func TestMockModifySignature(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.ModifySignature(&ModifySignatureRequest{
+		SignID:      12345,
+		SignName:    "新签名",
+		Remark:      "修改签名",
+		SignSource:  0,
+		ProofBase64: "newbase64",
+		ProofSuffix: "jpg",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" || resp.SignName != "新签名" {
+		t.Errorf("unexpected response: %+v", resp)
+	}
+}
+
+func TestMockDeleteTemplate(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.DeleteTemplate(&DeleteTemplateRequest{
+		TemplateID: "SMS_001",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" {
+		t.Errorf("expected OK, got %s", resp.Code)
+	}
+}
+
+func TestMockDeleteSignature(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.DeleteSignature(&DeleteSignatureRequest{
+		SignID:   12345,
+		SignName: "测试签名",
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

@@ -109,6 +109,41 @@ func (a *aliyunProvider) ApplyTemplate(req *ApplyTemplateRequest) (*ApplyTemplat
 	}, nil
 }
 
+func (a *aliyunProvider) DeleteTemplate(req *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
+	apiReq := dysmsapi.CreateDeleteSmsTemplateRequest()
+	apiReq.TemplateCode = req.TemplateID
+
+	apiResp, err := a.client.DeleteSmsTemplate(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	return &DeleteTemplateResponse{
+		RequestID: apiResp.RequestId,
+		Code:      apiResp.Code,
+		Message:   apiResp.Message,
+	}, nil
+}
+
+func (a *aliyunProvider) ModifyTemplate(req *ModifyTemplateRequest) (*ModifyTemplateResponse, error) {
+	apiReq := dysmsapi.CreateUpdateSmsTemplateRequest()
+	apiReq.TemplateCode = req.TemplateID
+	apiReq.TemplateName = req.TemplateName
+	apiReq.TemplateContent = req.TemplateContent
+	apiReq.TemplateType = requests.NewInteger(req.TemplateType)
+	apiReq.Remark = req.Remark
+
+	apiResp, err := a.client.UpdateSmsTemplate(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	return &ModifyTemplateResponse{
+		RequestID:  apiResp.RequestId,
+		Code:       apiResp.Code,
+		Message:    apiResp.Message,
+		TemplateID: apiResp.TemplateCode,
+	}, nil
+}
+
 func (a *aliyunProvider) SignatureList(req *SignatureListRequest) (*SignatureListResponse, error) {
 	apiReq := dysmsapi.CreateQuerySmsSignListRequest()
 	apiReq.PageIndex = requests.NewInteger(req.Page)
@@ -157,6 +192,39 @@ func (a *aliyunProvider) ApplySignature(req *ApplySignatureRequest) (*ApplySigna
 		Code:      apiResp.Code,
 		Message:   apiResp.Message,
 		SignName:  apiResp.SignName,
+	}, nil
+}
+
+func (a *aliyunProvider) ModifySignature(req *ModifySignatureRequest) (*ModifySignatureResponse, error) {
+	apiReq := dysmsapi.CreateUpdateSmsSignRequest()
+	apiReq.SignName = req.SignName
+	apiReq.Remark = req.Remark
+	apiReq.SignSource = requests.NewInteger(req.SignSource)
+
+	apiResp, err := a.client.UpdateSmsSign(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	return &ModifySignatureResponse{
+		RequestID: apiResp.RequestId,
+		Code:      apiResp.Code,
+		Message:   apiResp.Message,
+		SignName:  apiResp.SignName,
+	}, nil
+}
+
+func (a *aliyunProvider) DeleteSignature(req *DeleteSignatureRequest) (*DeleteSignatureResponse, error) {
+	apiReq := dysmsapi.CreateDeleteSmsSignRequest()
+	apiReq.SignName = req.SignName
+
+	apiResp, err := a.client.DeleteSmsSign(apiReq)
+	if err != nil {
+		return nil, err
+	}
+	return &DeleteSignatureResponse{
+		RequestID: apiResp.RequestId,
+		Code:      apiResp.Code,
+		Message:   apiResp.Message,
 	}, nil
 }
 

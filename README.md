@@ -86,10 +86,12 @@ type Provider interface {
     // 模板管理
     TemplateList(req *TemplateListRequest) (*TemplateListResponse, error)
     ApplyTemplate(req *ApplyTemplateRequest) (*ApplyTemplateResponse, error)
+    ModifyTemplate(req *ModifyTemplateRequest) (*ModifyTemplateResponse, error)
 
     // 签名管理
     SignatureList(req *SignatureListRequest) (*SignatureListResponse, error)
     ApplySignature(req *ApplySignatureRequest) (*ApplySignatureResponse, error)
+    ModifySignature(req *ModifySignatureRequest) (*ModifySignatureResponse, error)
 
     // 统计与记录
     SendStatistics(req *StatisticsRequest) (*StatisticsResponse, error)
@@ -162,6 +164,19 @@ resp, err := p.ApplyTemplate(&sms.ApplyTemplateRequest{
 | **响应** | TemplateID | 平台分配的模板 ID |
 | | Code | `"OK"` 表示成功 |
 
+#### 修改模板
+
+```go
+resp, err := p.ModifyTemplate(&sms.ModifyTemplateRequest{
+    TemplateID:      "SMS_123456",
+    TemplateName:    "新模板名称",
+    TemplateContent: "您的新验证码为${code}",
+    TemplateType:    0,
+    Remark:          "修改模板",
+})
+// 仅审核中或驳回状态的模板可修改
+```
+
 ---
 
 ### 签名管理
@@ -197,6 +212,20 @@ resp, err := p.ApplySignature(&sms.ApplySignatureRequest{
 | | ProofSuffix | 文件后缀: jpg/png/pdf |
 | **响应** | SignName | 申请的签名名称 |
 
+#### 修改签名
+
+```go
+resp, err := p.ModifySignature(&sms.ModifySignatureRequest{
+    SignID:      12345,       // 腾讯云必填，阿里云不需要
+    SignName:    "新签名名称",  // 阿里云通过此字段定位要修改的签名
+    Remark:      "修改签名",
+    SignSource:  0,
+    ProofBase64: "...",
+    ProofSuffix: "jpg",
+})
+// 仅审核中或驳回状态的签名可修改
+```
+
 ---
 
 ### 发送统计与记录
@@ -207,10 +236,22 @@ resp, err := p.ApplySignature(&sms.ApplySignatureRequest{
 resp, err := p.SendStatistics(&sms.StatisticsRequest{
     StartDate: "20240501", // yyyyMMdd
     EndDate:   "20240531",
-    SignName:  "", // 可选，按签名过滤
+    Type:      1,          // 1=国内, 2=国际/港澳台
+    SignName:  "",         // 可选，按签名过滤
+    Page:      1,
+    PageSize:  10,
 })
 // resp.TotalSent / resp.SuccessCnt / resp.FailCnt
 ```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| StartDate | string | 开始日期 yyyyMMdd |
+| EndDate | string | 结束日期 yyyyMMdd |
+| Type | int | 1=国内, 2=国际/港澳台 |
+| SignName | string | 可选，按签名过滤 |
+| Page | int | 页码，从 1 开始 |
+| PageSize | int | 每页数量 |
 
 > 阿里云返回按日明细汇总；腾讯云返回时间段内的总量统计。
 

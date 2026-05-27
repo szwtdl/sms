@@ -12,11 +12,19 @@ type Provider interface {
 	TemplateList(req *TemplateListRequest) (*TemplateListResponse, error)
 	// ApplyTemplate 申请短信模板。
 	ApplyTemplate(req *ApplyTemplateRequest) (*ApplyTemplateResponse, error)
+	// ModifyTemplate 修改短信模板。
+	ModifyTemplate(req *ModifyTemplateRequest) (*ModifyTemplateResponse, error)
+	// DeleteTemplate 删除短信模板。
+	DeleteTemplate(req *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
 
 	// SignatureList 查询签名列表。
 	SignatureList(req *SignatureListRequest) (*SignatureListResponse, error)
 	// ApplySignature 申请短信签名。
 	ApplySignature(req *ApplySignatureRequest) (*ApplySignatureResponse, error)
+	// ModifySignature 修改短信签名。
+	ModifySignature(req *ModifySignatureRequest) (*ModifySignatureResponse, error)
+	// DeleteSignature 删除短信签名。
+	DeleteSignature(req *DeleteSignatureRequest) (*DeleteSignatureResponse, error)
 
 	// SendStatistics 查询发送统计。
 	SendStatistics(req *StatisticsRequest) (*StatisticsResponse, error)
