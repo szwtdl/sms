@@ -87,11 +87,13 @@ type Provider interface {
     TemplateList(req *TemplateListRequest) (*TemplateListResponse, error)
     ApplyTemplate(req *ApplyTemplateRequest) (*ApplyTemplateResponse, error)
     ModifyTemplate(req *ModifyTemplateRequest) (*ModifyTemplateResponse, error)
+    DeleteTemplate(req *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
 
     // 签名管理
     SignatureList(req *SignatureListRequest) (*SignatureListResponse, error)
     ApplySignature(req *ApplySignatureRequest) (*ApplySignatureResponse, error)
     ModifySignature(req *ModifySignatureRequest) (*ModifySignatureResponse, error)
+    DeleteSignature(req *DeleteSignatureRequest) (*DeleteSignatureResponse, error)
 
     // 统计与记录
     SendStatistics(req *StatisticsRequest) (*StatisticsResponse, error)
@@ -177,6 +179,14 @@ resp, err := p.ModifyTemplate(&sms.ModifyTemplateRequest{
 // 仅审核中或驳回状态的模板可修改
 ```
 
+#### 删除模板
+
+```go
+resp, err := p.DeleteTemplate(&sms.DeleteTemplateRequest{
+    TemplateID: "SMS_123456",
+})
+```
+
 ---
 
 ### 签名管理
@@ -224,6 +234,15 @@ resp, err := p.ModifySignature(&sms.ModifySignatureRequest{
     ProofSuffix: "jpg",
 })
 // 仅审核中或驳回状态的签名可修改
+```
+
+#### 删除签名
+
+```go
+resp, err := p.DeleteSignature(&sms.DeleteSignatureRequest{
+    SignID:   12345,       // 腾讯云必填
+    SignName: "签名名称",   // 阿里云必填
+})
 ```
 
 ---
