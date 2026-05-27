@@ -7,6 +7,21 @@ type Provider interface {
 	Send(req *SendRequest) (*SendResponse, error)
 	// ProviderName 返回服务商名称，如 "aliyun"、"tencent"。
 	ProviderName() string
+
+	// TemplateList 查询模板列表。
+	TemplateList(req *TemplateListRequest) (*TemplateListResponse, error)
+	// ApplyTemplate 申请短信模板。
+	ApplyTemplate(req *ApplyTemplateRequest) (*ApplyTemplateResponse, error)
+
+	// SignatureList 查询签名列表。
+	SignatureList(req *SignatureListRequest) (*SignatureListResponse, error)
+	// ApplySignature 申请短信签名。
+	ApplySignature(req *ApplySignatureRequest) (*ApplySignatureResponse, error)
+
+	// SendStatistics 查询发送统计。
+	SendStatistics(req *StatisticsRequest) (*StatisticsResponse, error)
+	// QueryRecords 查询发送记录。
+	QueryRecords(req *QueryRecordRequest) (*QueryRecordResponse, error)
 }
 
 // SendRequest 短信发送请求。

@@ -16,6 +16,30 @@ func (m *mockProvider) Send(req *SendRequest) (*SendResponse, error) {
 	return m.sendFunc(req)
 }
 
+func (m *mockProvider) TemplateList(req *TemplateListRequest) (*TemplateListResponse, error) {
+	return &TemplateListResponse{Code: "OK", TotalCount: 0}, nil
+}
+
+func (m *mockProvider) ApplyTemplate(req *ApplyTemplateRequest) (*ApplyTemplateResponse, error) {
+	return &ApplyTemplateResponse{Code: "OK", TemplateID: "TPL_NEW"}, nil
+}
+
+func (m *mockProvider) SignatureList(req *SignatureListRequest) (*SignatureListResponse, error) {
+	return &SignatureListResponse{Code: "OK", TotalCount: 0}, nil
+}
+
+func (m *mockProvider) ApplySignature(req *ApplySignatureRequest) (*ApplySignatureResponse, error) {
+	return &ApplySignatureResponse{Code: "OK", SignName: req.SignName}, nil
+}
+
+func (m *mockProvider) SendStatistics(req *StatisticsRequest) (*StatisticsResponse, error) {
+	return &StatisticsResponse{Code: "OK", TotalSent: 100, SuccessCnt: 95, FailCnt: 5}, nil
+}
+
+func (m *mockProvider) QueryRecords(req *QueryRecordRequest) (*QueryRecordResponse, error) {
+	return &QueryRecordResponse{Code: "OK", TotalCount: 0}, nil
+}
+
 func TestSendCode(t *testing.T) {
 	mock := &mockProvider{
 		name: "mock",
@@ -170,6 +194,90 @@ func TestSendCode_MultiParams(t *testing.T) {
 		},
 	}
 	resp, err := p.Send(req)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" {
+		t.Errorf("expected OK, got %s", resp.Code)
+	}
+}
+
+func TestMockTemplateList(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.TemplateList(&TemplateListRequest{Page: 1, PageSize: 10})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" {
+		t.Errorf("expected OK, got %s", resp.Code)
+	}
+}
+
+func TestMockApplyTemplate(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.ApplyTemplate(&ApplyTemplateRequest{
+		TemplateName:    "验证码模板",
+		TemplateContent: "您的验证码为{1}",
+		TemplateType:    0,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" || resp.TemplateID != "TPL_NEW" {
+		t.Errorf("unexpected response: %+v", resp)
+	}
+}
+
+func TestMockSignatureList(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.SignatureList(&SignatureListRequest{Page: 1, PageSize: 10})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" {
+		t.Errorf("expected OK, got %s", resp.Code)
+	}
+}
+
+func TestMockApplySignature(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.ApplySignature(&ApplySignatureRequest{
+		SignName:    "测试签名",
+		Remark:      "测试申请",
+		SignSource:  0,
+		ProofBase64: "base64content",
+		ProofSuffix: "jpg",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.Code != "OK" || resp.SignName != "测试签名" {
+		t.Errorf("unexpected response: %+v", resp)
+	}
+}
+
+func TestMockSendStatistics(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.SendStatistics(&StatisticsRequest{
+		StartDate: "20240501",
+		EndDate:   "20240531",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if resp.TotalSent != 100 || resp.SuccessCnt != 95 || resp.FailCnt != 5 {
+		t.Errorf("unexpected stats: total=%d success=%d fail=%d", resp.TotalSent, resp.SuccessCnt, resp.FailCnt)
+	}
+}
+
+func TestMockQueryRecords(t *testing.T) {
+	m := &mockProvider{name: "mock"}
+	resp, err := m.QueryRecords(&QueryRecordRequest{
+		PhoneNumber: "13800138000",
+		SendDate:    "20240501",
+		Page:        1,
+		PageSize:    10,
+	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
